@@ -6,7 +6,8 @@ export class BandiController {
   constructor(private readonly bandiService: BandiService) {}
 
   @Get()
-  getBandi(@Query() query: any) {
-    return this.bandiService.findAll(query);
+  async getBandi(@Query() query: any) {
+    // Il database richiede tempo per rispondere, quindi usiamo await
+    return await this.bandiService.findAll(query);
   }
 }
