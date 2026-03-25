@@ -7,7 +7,27 @@ export class BandiController {
 
   @Get()
   async getBandi(@Query() query: any) {
-    // Il database richiede tempo per rispondere, quindi usiamo await
-    return await this.bandiService.findAll(query);
+    const result = await this.bandiService.findAll(query);
+
+    // Mappiamo i campi al modello frontend
+    const mapped = result.data.map((bando) => ({
+      id: bando.id,
+      status: bando.stato,
+      title: bando.titolo,
+      description: bando.enteErogatore,
+      tags: bando.settori,
+      closingDate:
+        bando.dataChiusura instanceof Date
+          ? bando.dataChiusura.toISOString().split('T')[0]
+          : bando.dataChiusura,
+      financialAllocation: bando.dotazioneFinanziaria,
+      aidType: bando.tipoAgevolazione,
+      territory: bando.territorio,
+    }));
+
+    return {
+      ...result,
+      data: mapped,
+    };
   }
 }

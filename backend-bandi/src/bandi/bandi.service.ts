@@ -18,18 +18,18 @@ export class BandiService {
     // Iniziamo a costruire la query
     const queryBuilder = this.bandoRepository.createQueryBuilder('bando');
 
-    // Filtro Testuale (Cerca nel titolo o nell'ente)
-    // ILIKE serve per ignorare maiuscole/minuscole in Postgres
-    if (search) {
-      queryBuilder.andWhere(
-        '(bando.titolo ILIKE :search OR bando.ente ILIKE :search)',
-        { search: `%${search}%` },
-      );
-    }
-
     // Filtro Stato (Attivo, In arrivo, Chiuso)
     if (stato) {
       queryBuilder.andWhere('LOWER(bando.stato) = LOWER(:stato)', { stato });
+    }
+
+    // Filtro Testuale (Cerca nel titolo o nell'ente erogatore)
+    // Qui usiamo il nome reale della colonna nel DB
+    if (search) {
+      queryBuilder.andWhere(
+        '(bando.titolo ILIKE :search OR bando."enteErogatore" ILIKE :search)',
+        { search: `%${search}%` },
+      );
     }
 
     // Paginazione e recupero dati

@@ -1,9 +1,10 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { provideHttpClient } from '@angular/common/http';
+import { AppComponent } from './app/app.component';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.enableCors();
-  await app.listen(3000);
-}
-bootstrap();
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideHttpClient(),
+  ],
+})
+.catch(err => console.error(err));

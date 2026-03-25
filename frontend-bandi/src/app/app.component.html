@@ -1,0 +1,175 @@
+<div class="min-h-screen bg-gray-50 flex flex-col font-sans">
+
+  <header class="bg-[#1D4ED8] text-white py-3 px-6">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <a href="#" class="flex items-center gap-2">
+        <span class="bg-[#2563EB] rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm">i</span>
+        <span class="text-white font-extrabold text-lg tracking-tight">hembryo</span>
+      </a>
+      <nav class="flex items-center gap-5 text-[13px] font-medium">
+        <a href="#" class="hover:text-blue-200 transition">Home</a>
+        <a href="#" class="hover:text-blue-200 transition">Chi siamo</a>
+        <a href="#" class="hover:text-blue-200 transition">Offerta</a>
+        <a href="#" class="hover:text-blue-200 transition">Progetti</a>
+        <a href="#" class="hover:text-blue-200 transition">Bandi</a>
+        <a href="#" class="hover:text-blue-200 transition">Contatti</a>
+      </nav>
+      <div class="flex items-center gap-2">
+          <a href="#" class="bg-white/10 p-1.5 rounded-full hover:bg-white/20 transition"><svg class="w-3.5 h-3.5 text-white fill-current" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg></a>
+          <a href="#" class="bg-white/10 p-1.5 rounded-full hover:bg-white/20 transition"><svg class="w-3.5 h-3.5 text-white fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
+          <a href="#" class="bg-white/10 p-1.5 rounded-full hover:bg-white/20 transition"><svg class="w-3.5 h-3.5 text-white fill-current" viewBox="0 0 24 24"><path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z"/></svg></a>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow py-8 px-6 max-w-7xl mx-auto w-full">
+    <div class="flex gap-8">
+
+      <aside class="w-64 flex-shrink-0 border-r border-gray-200 pr-6">
+        <div class="mb-6">
+          <h3 class="text-xs font-semibold mb-3 text-gray-800 bg-gray-100 p-2.5 rounded-t-md flex items-center gap-2">
+             Stato Incentivi
+          </h3>
+          <div class="flex flex-wrap gap-1.5 border border-t-0 border-gray-200 p-3 rounded-b-md">
+            <button (click)="cambiaStato('Attivo')" [ngClass]="activeStatus === 'Attivo' ? 'bg-blue-600 text-white border-blue-700' : 'border-gray-300 text-gray-700'" class="px-3 py-1 rounded text-[11px] font-medium hover:bg-gray-50">Aperti</button>
+            <button (click)="cambiaStato('In arrivo')" [ngClass]="activeStatus === 'In arrivo' ? 'bg-blue-600 text-white border-blue-700' : 'border-gray-300 text-gray-700'" class="px-3 py-1 rounded text-[11px] font-medium hover:bg-gray-50">In arrivo</button>
+            <button (click)="cambiaStato('Chiuso')" [ngClass]="activeStatus === 'Chiuso' ? 'bg-blue-600 text-white border-blue-700' : 'border-gray-300 text-gray-700'" class="px-3 py-1 rounded text-[11px] font-medium hover:bg-gray-50">Chiusi</button>
+            <button (click)="cambiaStato('')" class="text-[11px] ml-2 text-gray-500 hover:text-gray-800">Tutti</button>
+          </div>
+        </div>
+        
+        <div class="mb-6">
+          <h3 class="text-xs font-semibold mb-3 text-gray-800 bg-gray-100 p-2.5 rounded-t-md flex items-center gap-2">
+            Ordina per
+          </h3>
+          <ul class="text-[11px] border border-t-0 border-gray-200 p-2 rounded-b-md space-y-0.5">
+            <li><button (click)="cambiaOrdine('asc')" class="w-full text-left text-gray-700 hover:bg-gray-50 p-1.5 rounded font-medium">ORDINAMENTO CRESCENTE</button></li>
+            <li><button (click)="cambiaOrdine('desc')" class="w-full text-left text-gray-700 hover:bg-gray-50 p-1.5 rounded font-medium">ORDINAMENTO DECRESCENTE</button></li>
+            <li><button (click)="cambiaOrdine('asc')" class="w-full text-left text-gray-700 hover:bg-gray-50 p-1.5 rounded font-medium">DAL MENO RECENTE AL PIÙ RECENTE</button></li>
+            <li><button (click)="cambiaOrdine('desc')" class="w-full text-left font-semibold text-gray-900 border border-gray-300 p-1.5 rounded bg-white shadow-sm">DAL PIÙ RECENTE AL MENO RECENTE</button></li>
+          </ul>
+        </div>
+        
+        <div class="mb-6">
+          <h3 class="text-xs font-semibold mb-3 text-gray-800 bg-gray-100 p-2.5 rounded-t-md flex items-center gap-2">
+            Filtri
+          </h3>
+          <ul class="space-y-1.5 text-[11px] border border-t-0 border-gray-200 p-3 rounded-b-md">
+             <li><button class="flex justify-between items-center w-full text-gray-700 font-semibold p-2 border border-gray-200 rounded hover:bg-gray-50">TIPO SOGGETTO <span class="text-gray-400 text-[8px]">▼</span></button></li>
+             <li><button class="flex justify-between items-center w-full text-gray-700 font-semibold p-2 border border-gray-200 rounded hover:bg-gray-50">DIMENSIONE <span class="text-gray-400 text-[8px]">▼</span></button></li>
+             <li><button class="flex justify-between items-center w-full text-gray-700 font-semibold p-2 border border-gray-200 rounded hover:bg-gray-50">FORMA AGEVOLAZIONE <span class="text-gray-400 text-[8px]">▼</span></button></li>
+             <li><button class="flex justify-between items-center w-full text-gray-700 font-semibold p-2 border border-gray-200 rounded hover:bg-gray-50">REGIONE <span class="text-gray-400 text-[8px]">▼</span></button></li>
+             <li><button class="flex justify-between items-center w-full text-gray-700 font-semibold p-2 border border-gray-200 rounded hover:bg-gray-50">AMBITO TERRITORIALE <span class="text-gray-400 text-[8px]">▼</span></button></li>
+             <li><button class="flex justify-between items-center w-full text-gray-700 font-semibold p-2 border border-gray-200 rounded hover:bg-gray-50">OBIETTIVO FINALITÀ <span class="text-gray-400 text-[8px]">▼</span></button></li>
+             <li><button class="flex justify-between items-center w-full text-gray-700 font-semibold p-2 border border-gray-200 rounded hover:bg-gray-50">SETTORE ATTIVITÀ <span class="text-gray-400 text-[8px]">▼</span></button></li>
+             <li><button class="flex justify-between items-center w-full text-gray-700 font-semibold p-2 border border-gray-200 rounded hover:bg-gray-50">COSTI AMMESSI <span class="text-gray-400 text-[8px]">▼</span></button></li>
+          </ul>
+        </div>
+      </aside>
+
+      <section class="flex-grow">
+        <h2 class="text-[11px] font-bold text-gray-500 mb-1.5 uppercase tracking-widest">Bandi</h2>
+        <h1 class="text-2xl font-extrabold mb-3 text-gray-900 tracking-tight">Scegli l'incentivo adatto a te</h1>
+        <p class="text-gray-600 max-w-3xl mb-6 text-[13px] leading-relaxed">La sezione "Bandi e Opportunità" offre una panoramica delle attuali possibilità di finanziamento e sviluppo per le imprese e le organizzazioni. Troverai una selezione di bandi ed opportunità di finanziamenti regionali, nazionali ed europei, con l'obiettivo di supportare le aziende nella ricerca di risorse per la crescita e l'innovazione.</p>
+
+        <div class="bg-white p-1.5 rounded-md shadow-sm mb-6 flex gap-2 border border-gray-200">
+          <input [(ngModel)]="searchTerm" type="text" placeholder="Usa parole chiave per una ricerca più chiara e immediata..." class="flex-grow border border-gray-300 rounded p-2 px-3 text-[13px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none w-full">
+          <button (click)="cerca()" class="bg-[#1D4ED8] hover:bg-blue-800 transition text-white px-6 py-2 rounded font-semibold text-[13px] flex items-center gap-2 whitespace-nowrap">
+            🔍 Cerca
+          </button>
+        </div>
+
+        <div class="flex justify-between items-center mb-4">
+          <p class="text-lg font-bold text-gray-900">{{ total }} bandi</p>
+          <div class="flex gap-1 text-[13px] text-gray-600 font-medium items-center">
+            <button (click)="paginaIndietro()" [disabled]="page <= 1" class="p-1 px-2 hover:bg-gray-100 rounded text-gray-400 border border-transparent disabled:opacity-50">&lt;</button>
+            <button class="border border-gray-300 bg-white text-gray-800 p-1 px-2.5 rounded shadow-sm">{{ page }}</button>
+            <button (click)="paginaAvanti()" [disabled]="page * limit >= total" class="p-1 px-2 hover:bg-gray-100 rounded border border-transparent disabled:opacity-50">&gt;</button>
+          </div>
+        </div>
+
+        <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-12 text-gray-500">
+          <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-[#1D4ED8] mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+          <span class="text-sm font-medium">Caricamento bandi...</span>
+        </div>
+        <div *ngIf="errorMessage" class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-5 rounded shadow-sm text-sm">
+          {{ errorMessage }} <button (click)="caricaBandi()" class="ml-2 font-bold underline">Riprova</button>
+        </div>
+
+        <div *ngIf="!isLoading && !errorMessage" class="space-y-3">
+          <ng-container *ngFor="let bando of bandi">
+              <div class="bg-white p-5 rounded-md shadow-sm border border-gray-200 flex flex-row gap-5 hover:shadow-md transition">
+                  <div class="flex-grow">
+                      <span [ngClass]="{
+                          'bg-green-50 text-green-700 border-green-200': bando.status === 'Attivo',
+                          'bg-yellow-50 text-yellow-700 border-yellow-200': bando.status === 'In arrivo',
+                          'bg-gray-800 text-white border-gray-900': bando.status === 'Chiuso'
+                          }" class="inline-block px-2.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider mb-2 border">
+                          {{ bando.status }}
+                      </span>
+                      <h4 class="text-base font-bold mb-1 text-gray-900 leading-tight">{{ bando.title }}</h4>
+                      <p class="text-[13px] text-gray-500 mb-3">{{ bando.description }}</p>
+
+                      <div class="flex flex-wrap gap-1.5 mb-4">
+                          <span *ngFor="let tag of bando.tags" class="bg-[#F3F4F6] text-gray-600 px-2 py-0.5 rounded text-[10px] font-medium border border-gray-100">{{ tag }}</span>
+                      </div>
+
+                      <p class="text-[11px] text-gray-800 font-semibold flex items-center gap-1.5">
+                          Data chiusura <span class="text-[#1D4ED8]">{{ bando.closingDate }}</span>
+                      </p>
+                  </div>
+                  
+                  <div class="w-48 flex-shrink-0 flex flex-col justify-center gap-3 pl-5 border-l border-gray-100">
+                      <div>
+                          <p class="text-[9px] text-gray-500 font-semibold uppercase tracking-wider mb-0.5">Dotazione Finanziaria</p>
+                          <p class="text-[13px] font-bold text-gray-900">{{ bando.financialAllocation }}</p>
+                      </div>
+                      <div>
+                          <p class="text-[9px] text-gray-500 font-semibold uppercase tracking-wider mb-0.5">Tipo di Agevolazione</p>
+                          <p class="text-[13px] font-bold text-gray-900">{{ bando.aidType }}</p>
+                      </div>
+                      <div>
+                          <p class="text-[9px] text-gray-500 font-semibold uppercase tracking-wider mb-0.5">Territorio</p>
+                          <p class="text-[13px] font-bold text-gray-900">{{ bando.territory }}</p>
+                      </div>
+                  </div>
+              </div>
+          </ng-container>
+        </div>
+
+      </section>
+    </div>
+  </main>
+
+  <footer class="bg-[#2C2C2C] text-gray-300 py-10 px-6 mt-12">
+    <div class="max-w-7xl mx-auto grid grid-cols-4 gap-8 text-[13px]">
+      <div class="col-span-1">
+        <span class="text-xl font-extrabold text-white mb-3 block tracking-tight">hembryo</span>
+        <p class="text-gray-400 max-w-xs mb-5 text-[11px] leading-relaxed">hembryo guida le aziende nel passaggio da sistemi antiquati a modelli di lavoro moderni, agili e connessi.</p>
+        <button class="bg-white text-black hover:bg-gray-100 px-5 py-2 rounded font-bold text-[11px] shadow-sm transition">Richiedi una Call</button>
+      </div>
+       <div class="col-span-1">
+        <h5 class="text-white font-bold mb-3 text-[12px] uppercase tracking-wider">Menu</h5>
+        <ul class="space-y-1.5 text-gray-400 text-[11px]">
+          <li><a href="#" class="hover:text-white transition">Home</a></li>
+          <li><a href="#" class="hover:text-white transition">Chi siamo</a></li>
+          <li><a href="#" class="hover:text-white transition">Offerta</a></li>
+          <li><a href="#" class="hover:text-white transition">Progetti</a></li>
+          <li><a href="#" class="hover:text-white transition">Contatti</a></li>
+        </ul>
+      </div>
+       <div class="col-span-2">
+        <h5 class="text-white font-bold mb-3 text-[12px] uppercase tracking-wider">Ufficio Relazioni con il Pubblico</h5>
+        <p class="text-gray-400 text-[11px] mb-1">SMS e Whatsapp: +39 3420114299</p>
+         <p class="text-gray-400 text-[11px] mb-3">Pec: <a href="mailto:hembryo@pec.it" class="hover:text-white transition">hembryo@pec.it</a></p>
+        <p class="text-gray-400 text-[11px] mb-1">hembryo@gmail.com</p>
+        <p class="text-gray-400 text-[11px] mb-1">Via Rosario Riolo 60 - 90141 PA</p>
+        <p class="text-gray-400 text-[11px] mb-1">C.F. 06275270822</p>
+        <p class="text-gray-400 text-[11px]">P.IVA 06275270822</p>
+      </div>
+    </div>
+    <div class="max-w-7xl mx-auto border-t border-gray-700 mt-8 pt-5 flex justify-between items-center text-[11px] text-gray-500">
+      <p>&copy; 2023 hembryo. Tutti i diritti riservati. &nbsp;&nbsp; <a href="#" class="hover:text-gray-300 transition">Privacy Policy</a> &nbsp; <a href="#" class="hover:text-gray-300 transition">Terms of Service</a> &nbsp; <a href="#" class="hover:text-gray-300 transition">Cookies Settings</a></p>
+    </div>
+  </footer>
+</div>

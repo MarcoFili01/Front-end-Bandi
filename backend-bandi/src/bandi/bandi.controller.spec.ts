@@ -8,7 +8,14 @@ describe('BandiController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [BandiController],
-      providers: [BandiService],
+      providers: [
+        {
+          provide: BandiService,
+          useValue: {
+            findAll: jest.fn().mockResolvedValue({ total: 0, page: 1, limit: 5, data: [] }),
+          },
+        },
+      ],
     }).compile();
 
     controller = module.get<BandiController>(BandiController);
