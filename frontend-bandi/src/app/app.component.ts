@@ -30,6 +30,24 @@ export class AppComponent implements OnInit {
     this.caricaBandi();
   }
 
+  /**
+   * Getter per calcolare i numeri di pagina visibili nella paginazione.
+   * Mostra la pagina corrente e le due successive, se disponibili.
+   */
+  get visiblePages(): number[] {
+    const totalPages = Math.ceil(this.total / this.limit);
+    const pages: number[] = [];
+    const maxVisible = 3; // Numero di pulsanti numerici da mostrare
+    
+    for (let i = 0; i < maxVisible; i++) {
+      const p = this.page + i;
+      if (p <= totalPages) {
+        pages.push(p);
+      }
+    }
+    return pages;
+  }
+
   caricaBandi(page: number = 1): void {
     this.page = page;
     this.isLoading = true;
