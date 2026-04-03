@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Bando } from './bando.interface';
 import { BandiService } from './bandi.service';
-
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -24,34 +23,47 @@ export class AppComponent implements OnInit {
   limit: number = 5;
   sortOrder: 'asc' | 'desc' = 'desc';
 
-  constructor(private bandiService: BandiService) {}
+  constructor(
+    private bandiService: BandiService,
+    private cdr: ChangeDetectorRef // Forza l'aggiornamento della grafica
+  ) {}
 
   ngOnInit(): void {
     this.caricaBandi();
   }
 
   /**
-   * Getter per calcolare i numeri di pagina visibili nella paginazione.
-   * Mostra la pagina corrente e le due successive, se disponibili.
+   * Calcola i numeri di pagina in modo sicuro per evitare loop infiniti
    */
   get visiblePages(): number[] {
-    const totalPages = Math.ceil(this.total / this.limit);
+    const sicurezzaLimit = this.limit > 0 ? this.limit : 5;
+    const totalPages = Math.ceil(this.total / sicurezzaLimit) || 1;
     const pages: number[] = [];
-    const maxVisible = 3; // Numero di pulsanti numerici da mostrare
+    const maxVisible = 3; 
     
+    let start = Math.max(1, this.page);
+    if (start > totalPages - maxVisible + 1 && totalPages > maxVisible) {
+      start = Math.max(1, totalPages - maxVisible + 1);
+    }
+
     for (let i = 0; i < maxVisible; i++) {
-      const p = this.page + i;
-      if (p <= totalPages) {
-        pages.push(p);
+      if (start <= totalPages) {
+        pages.push(start);
+        start++;
       }
     }
     return pages;
   }
 
-  caricaBandi(page: number = 1): void {
-    this.page = page;
+  /**
+   * Metodo principale per recuperare i dati dal server
+   */
+  caricaBandi(page: any = 1): void {
+    this.page = Number(page) || 1;
     this.isLoading = true;
     this.errorMessage = '';
+
+    console.log('Richiesta dati per pagina:', this.page);
 
     this.bandiService.getBandi({
       search: this.searchTerm,
@@ -59,33 +71,68 @@ export class AppComponent implements OnInit {
       page: this.page,
       sort: this.sortOrder,
     }).subscribe({
-      next: (resp) => {
-        this.bandi = resp.data;
-        this.total = resp.total;
-        this.limit = resp.limit;
-        this.page = resp.page;
+      next: (resp: any) => {
+        console.log('Dati ricevuti con successo:', resp);
 
-        this.applicaOrdinamento();
-
+        // 1. Spegniamo il caricamento IMMEDIATAMENTE
         this.isLoading = false;
+
+        if (!resp) return;
+
+        // 2. Mappatura dati sicura
+        const nuoviBandi = resp.data || [];
+        this.total = Number(resp.total) || 0;
+        this.limit = Number(resp.limit) || 5;
+        this.page = Number(resp.page) || this.page;
+
+        // 3. Pulizia tag (rimuove spazi bianchi)
+        nuoviBandi.forEach((b: any) => {
+          if (b && Array.isArray(b.tags)) {
+            b.tags = b.tags.map((t: any) => (typeof t === 'string' ? t.trim() : t));
+          }
+        });
+
+        this.bandi = nuoviBandi;
+
+        // 4. Ordinamento protetto
+        try {
+          this.applicaOrdinamento();
+        } catch (e) {
+          console.error("Errore ordinamento:", e);
+        }
+
+        // 5. Comunichiamo ad Angular di ridisegnare la pagina ora
+        this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Errore nel recupero dei bandi:', error);
-        this.errorMessage = 'Si è verificato un errore nel caricamento dei bandi. Riprova più tardi.';
+        console.error('Errore durante la chiamata API:', error);
+        this.errorMessage = 'Errore di connessione al server.';
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
 
+  /**
+   * Ordina i bandi in base alla data di chiusura
+   */
   applicaOrdinamento(): void {
+    if (!Array.isArray(this.bandi) || this.bandi.length === 0) return;
+
     this.bandi = [...this.bandi].sort((a, b) => {
-      const fa = new Date(a.closingDate).getTime();
-      const fb = new Date(b.closingDate).getTime();
-      return this.sortOrder === 'asc' ? fa - fb : fb - fa;
+      const dateA = a?.closingDate ? new Date(a.closingDate).getTime() : 0;
+      const dateB = b?.closingDate ? new Date(b.closingDate).getTime() : 0;
+      
+      const valA = isNaN(dateA) ? 0 : dateA;
+      const valB = isNaN(dateB) ? 0 : dateB;
+
+      return this.sortOrder === 'asc' ? valA - valB : valB - valA;
     });
   }
 
-  cambiaStato(stato: 'Attivo' | 'In arrivo' | 'Chiuso' | ''): void {
+  // --- Metodi per l'interfaccia ---
+
+  cambiaStato(stato: any): void {
     this.activeStatus = stato;
     this.caricaBandi(1);
   }
@@ -97,15 +144,18 @@ export class AppComponent implements OnInit {
   cambiaOrdine(ord: 'asc' | 'desc'): void {
     this.sortOrder = ord;
     this.applicaOrdinamento();
+    this.cdr.detectChanges();
   }
 
   paginaAvanti(): void {
-    if (this.page * this.limit >= this.total) return;
-    this.caricaBandi(this.page + 1);
+    if (this.page * this.limit < this.total) {
+      this.caricaBandi(this.page + 1);
+    }
   }
 
   paginaIndietro(): void {
-    if (this.page <= 1) return;
-    this.caricaBandi(this.page - 1);
+    if (this.page > 1) {
+      this.caricaBandi(this.page - 1);
+    }
   }
 }
