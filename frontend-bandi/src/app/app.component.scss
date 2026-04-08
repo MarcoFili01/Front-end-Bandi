@@ -3,3 +3,11 @@
 body {
   font-family: 'Inter', sans-serif;
 }
+
+button:focus {
+  outline: none;
+}
+
+input[type="checkbox"] {
+  cursor: pointer;
+}

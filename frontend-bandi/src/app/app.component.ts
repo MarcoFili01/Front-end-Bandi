@@ -4,6 +4,12 @@ import { BandiService } from './bandi.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
+interface FiltroItem {
+  label: string;
+  isOpen: boolean;
+  options: { label: string; selected: boolean }[];
+}
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -23,18 +29,56 @@ export class AppComponent implements OnInit {
   limit: number = 5;
   sortOrder: 'asc' | 'desc' = 'desc';
 
+  // LOGICA FILTRI AGGIUNTA - PULITA COME RICHIESTO
+  filtriList: FiltroItem[] = [
+    {
+      label: 'TIPO SOGGETTO',
+      isOpen: false,
+      options: [
+        { label: 'IMPRESA', selected: false },
+        { label: 'ISTITUTO FINANZIARIO', selected: false },
+        { label: 'IMPRESA - PREVALENZA FEMMINILE', selected: false },
+        { label: 'IMPRESA - PREVALENZA GIOVANILE', selected: false },
+        { label: 'IMPRESA - SU/PMI INNOVATIVA', selected: false },
+        { label: 'IMPRESA DA COSTITUIRE - FEMMINILE', selected: false },
+        { label: 'IMPRESA DA COSTITUIRE - GIOVANILE', selected: false },
+        { label: 'IMPRESA DA COSTITUIRE - ALTRO', selected: false },
+        { label: 'PROFESSIONISTA', selected: false },
+        { label: 'ASSOCIAZIONE FRA PROFESSIONISTI', selected: false },
+        { label: 'RETE D\'IMPRESA', selected: false },
+        { label: 'COOPERATIVE/ASSOCIAZIONI NON PROFIT', selected: false },
+        { label: 'CONSORZIO', selected: false },
+        { label: 'ENTE PUBBLICO', selected: false },
+        { label: 'UNIVERSITÀ ENTE DI RICERCA', selected: false }
+      ]
+    },
+    { label: 'DIMENSIONE', isOpen: false, options: [] },
+    { label: 'FORMA AGEVOLAZIONE', isOpen: false, options: [] },
+    { label: 'REGIONE', isOpen: false, options: [] },
+    { label: 'AMBITO TERRITORIALE SPECIALE', isOpen: false, options: [] },
+    { label: 'OBIETTIVO FINALITÀ', isOpen: false, options: [] },
+    { label: 'COSTI AMMESSI', isOpen: false, options: [] }
+  ];
+
   constructor(
     private bandiService: BandiService,
-    private cdr: ChangeDetectorRef // Forza l'aggiornamento della grafica
+    private cdr: ChangeDetectorRef 
   ) {}
 
   ngOnInit(): void {
     this.caricaBandi();
   }
 
-  /**
-   * Calcola i numeri di pagina in modo sicuro per evitare loop infiniti
-   */
+  toggleFilter(filtro: FiltroItem): void {
+    filtro.isOpen = !filtro.isOpen;
+  }
+
+  // NUOVA FUNZIONE PER IL CONTATORE DEI FILTRI
+  getSelectedCount(filtro: FiltroItem): number {
+    if (!filtro.options) return 0;
+    return filtro.options.filter(opt => opt.selected).length;
+  }
+
   get visiblePages(): number[] {
     const sicurezzaLimit = this.limit > 0 ? this.limit : 5;
     const totalPages = Math.ceil(this.total / sicurezzaLimit) || 1;
@@ -55,9 +99,6 @@ export class AppComponent implements OnInit {
     return pages;
   }
 
-  /**
-   * Metodo principale per recuperare i dati dal server
-   */
   caricaBandi(page: any = 1): void {
     this.page = Number(page) || 1;
     this.isLoading = true;
@@ -73,19 +114,14 @@ export class AppComponent implements OnInit {
     }).subscribe({
       next: (resp: any) => {
         console.log('Dati ricevuti con successo:', resp);
-
-        // 1. Spegniamo il caricamento IMMEDIATAMENTE
         this.isLoading = false;
-
         if (!resp) return;
 
-        // 2. Mappatura dati sicura
         const nuoviBandi = resp.data || [];
         this.total = Number(resp.total) || 0;
         this.limit = Number(resp.limit) || 5;
         this.page = Number(resp.page) || this.page;
 
-        // 3. Pulizia tag (rimuove spazi bianchi)
         nuoviBandi.forEach((b: any) => {
           if (b && Array.isArray(b.tags)) {
             b.tags = b.tags.map((t: any) => (typeof t === 'string' ? t.trim() : t));
@@ -94,14 +130,12 @@ export class AppComponent implements OnInit {
 
         this.bandi = nuoviBandi;
 
-        // 4. Ordinamento protetto
         try {
           this.applicaOrdinamento();
         } catch (e) {
           console.error("Errore ordinamento:", e);
         }
 
-        // 5. Comunichiamo ad Angular di ridisegnare la pagina ora
         this.cdr.detectChanges();
       },
       error: (error) => {
@@ -113,24 +147,17 @@ export class AppComponent implements OnInit {
     });
   }
 
-  /**
-   * Ordina i bandi in base alla data di chiusura
-   */
   applicaOrdinamento(): void {
     if (!Array.isArray(this.bandi) || this.bandi.length === 0) return;
 
     this.bandi = [...this.bandi].sort((a, b) => {
       const dateA = a?.closingDate ? new Date(a.closingDate).getTime() : 0;
       const dateB = b?.closingDate ? new Date(b.closingDate).getTime() : 0;
-      
       const valA = isNaN(dateA) ? 0 : dateA;
       const valB = isNaN(dateB) ? 0 : dateB;
-
       return this.sortOrder === 'asc' ? valA - valB : valB - valA;
     });
   }
-
-  // --- Metodi per l'interfaccia ---
 
   cambiaStato(stato: any): void {
     this.activeStatus = stato;
