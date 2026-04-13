@@ -3,10 +3,12 @@ import { TypeOrmModule } from '@nestjs/typeorm'; // <-- Aggiunto per il database
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BandiModule } from './bandi/bandi.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
     // <-- Inizio blocco database -->
+    ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
