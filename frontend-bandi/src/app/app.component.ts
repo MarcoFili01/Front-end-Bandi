@@ -1,4 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { Bando } from './bando.interface';
 import { BandiService } from './bandi.service';
 import { CommonModule } from '@angular/common';
@@ -13,7 +14,7 @@ interface FiltroItem {
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
@@ -62,7 +63,8 @@ export class AppComponent implements OnInit {
 
   constructor(
     private bandiService: BandiService,
-    private cdr: ChangeDetectorRef 
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -184,5 +186,9 @@ export class AppComponent implements OnInit {
     if (this.page > 1) {
       this.caricaBandi(this.page - 1);
     }
+  }
+
+  goToBandoDetail(bando: Bando): void {
+    this.router.navigate(['/bando', bando.id]);
   }
 }
