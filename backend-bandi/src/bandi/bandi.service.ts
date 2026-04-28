@@ -2,6 +2,8 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Bando } from './entities/user.entity'; // Assicurati che il percorso sia corretto
+import PDFDocument from 'pdfkit';
+import { Readable } from 'stream';
 
 @Injectable()
 export class BandiService implements OnModuleInit {
@@ -88,5 +90,212 @@ export class BandiService implements OnModuleInit {
       limit,
       data,
     };
+  }
+
+  // --- GENERAZIONE PDF ---
+  async generateBandoPdf(bandoId: number): Promise<Buffer> {
+    // Recupera il bando dal database
+    const bando = await this.bandoRepository.findOne({
+      where: { id: bandoId },
+    });
+
+    if (!bando) {
+      throw new Error(`Bando con ID ${bandoId} non trovato`);
+    }
+
+    return new Promise((resolve, reject) => {
+      try {
+        // Crea il documento PDF
+        const doc = new PDFDocument({
+          size: 'A4',
+          margin: 50,
+        });
+
+        const buffers: Buffer[] = [];
+
+        // Ascolta l'evento 'data' per raccogliere i chunk
+        doc.on('data', (chunk: Buffer) => {
+          buffers.push(chunk);
+        });
+
+        // Quando il PDF è terminato
+        doc.on('end', () => {
+          resolve(Buffer.concat(buffers));
+        });
+
+        // Gestisci gli errori
+        doc.on('error', (err: Error) => {
+          reject(err);
+        });
+
+        // ===== HEADER =====
+        doc
+          .fontSize(10)
+          .font('Helvetica-Bold')
+          .text('SCHEDA INFORMATIVA BANDO', { align: 'center' })
+          .moveDown(0.5);
+
+        doc
+          .fontSize(9)
+          .font('Helvetica')
+          .text(`Data generazione: ${new Date().toLocaleDateString('it-IT')}`, {
+            align: 'center',
+          })
+          .moveDown(1);
+
+        // ===== TITOLO =====
+        doc
+          .fontSize(16)
+          .font('Helvetica-Bold')
+          .text(bando.titolo, { align: 'left' })
+          .moveDown(0.5);
+
+        // ===== ENTE EROGATORE =====
+        doc
+          .fontSize(11)
+          .font('Helvetica')
+          .fillColor('#0066cc')
+          .text(`Ente Erogatore: ${bando.enteErogatore}`)
+          .fillColor('black')
+          .moveDown(0.5);
+
+        // ===== LINEA SEPARATRICE =====
+        doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke('#cccccc').moveDown(0.5);
+
+        // ===== SEZIONE: INFORMAZIONI PRINCIPALI =====
+        doc
+          .fontSize(12)
+          .font('Helvetica-Bold')
+          .text('INFORMAZIONI PRINCIPALI')
+          .moveDown(0.3);
+
+        doc.fontSize(9);
+
+        const addInfoRow = (label: string, value: string) => {
+          doc
+            .font('Helvetica-Bold')
+            .text(label, { continued: true });
+          doc
+            .font('Helvetica')
+            .text(` ${value}`);
+        };
+
+        addInfoRow('Stato:', bando.stato || 'N/A');
+        addInfoRow(
+          'Data Chiusura:',
+          bando.dataChiusura
+            ? new Date(bando.dataChiusura).toLocaleDateString('it-IT')
+            : 'N/A',
+        );
+        addInfoRow('Dotazione Finanziaria:', bando.dotazioneFinanziaria || 'N/A');
+        addInfoRow('Tipo Agevolazione:', bando.tipoAgevolazione || 'N/A');
+        addInfoRow('Territorio:', bando.territorio || 'N/A');
+
+        // ===== SEZIONE: SETTORI =====
+        doc.moveDown(0.5);
+        doc
+          .fontSize(12)
+          .font('Helvetica-Bold')
+          .text('SETTORI INTERESSATI')
+          .moveDown(0.3);
+
+        const settoriText = Array.isArray(bando.settori)
+          ? bando.settori.join(', ')
+          : bando.settori || 'N/A';
+        doc.fontSize(9).font('Helvetica').text(settoriText);
+
+        // ===== SEZIONE: L'OPPORTUNITÀ IN BREVE =====
+        doc.moveDown(0.5);
+        doc
+          .fontSize(12)
+          .font('Helvetica-Bold')
+          .text('L\'OPPORTUNITÀ IN BREVE')
+          .moveDown(0.3);
+
+        doc
+          .fontSize(9)
+          .font('Helvetica')
+          .text(
+            'Programma Nazionale Ricerca, Innovazione e Competitività per la transizione verde e digitale 2021-2027 | Azione 1.4.1 - Competenze per la specializzazione intelligente 4.',
+          )
+          .moveDown(0.2);
+
+        doc.text(
+          'La misura sostiene lo sviluppo di competenze specialistiche del personale delle PMI del Mezzogiorno per affrontare transizione digitale, sostenibilità ambientale e innovazione dei processi. Finanzia esclusivamente attività formativa, con riconoscimento dei costi tramite Opzioni Semplificate di Costo (OSC), riducendo oneri e rischi di rendicontazione.',
+        );
+
+        // ===== SEZIONE: FINESTRA TEMPORALE =====
+        doc.moveDown(0.5);
+        doc
+          .fontSize(12)
+          .font('Helvetica-Bold')
+          .text('FINESTRA TEMPORALE')
+          .moveDown(0.3);
+
+        doc.fontSize(9).font('Helvetica');
+        doc.text('• Apertura dello sportello: 12 marzo 2026, ore 12:00');
+        doc.text('• Chiusura dello sportello: 14 maggio 2026, ore 12:00');
+
+        // ===== SEZIONE: DESTINATARI DELLA MISURA =====
+        doc.moveDown(0.5);
+        doc
+          .fontSize(12)
+          .font('Helvetica-Bold')
+          .text('DESTINATARI DELLA MISURA')
+          .moveDown(0.3);
+
+        doc.fontSize(9).font('Helvetica');
+        doc.text(
+          '• PMI con unità operativa in: Basilicata, Calabria, Campania, Molise, Puglia, Sardegna, Sicilia',
+        );
+        doc.text('• Regolarità amministrativa e contributiva');
+        doc.text(
+          '• Capienza de minimis disponibile una sola domanda per impresa/sito produttivo all\'installazione di impianti fotovoltaici.',
+        );
+
+        // ===== SEZIONE: AGEVOLAZIONI E CONTRIBUTI =====
+        doc.moveDown(0.5);
+        doc
+          .fontSize(12)
+          .font('Helvetica-Bold')
+          .text('AGEVOLAZIONI E CONTRIBUTI')
+          .moveDown(0.3);
+
+        doc.fontSize(9).font('Helvetica');
+        doc.text('• Contributo diretto alla spesa in de minimis (progetto singolo)');
+        doc.text('• 70% micro/piccole (progetto integrato sovraregionale)');
+        doc.text('• 60% medie (progetto integrato sovraregionale)');
+
+        // ===== SEZIONE: CONTRIBUTI =====
+        doc.moveDown(0.5);
+        doc
+          .fontSize(12)
+          .font('Helvetica-Bold')
+          .text('CONTRIBUTI')
+          .moveDown(0.3);
+
+        doc.fontSize(9).font('Helvetica');
+        doc.text('• 30.000 € (singolo)');
+        doc.text('• 42.000 € (micro/piccole integrate)');
+        doc.text('• 36.000 € (medie integrate)');
+
+        // ===== FOOTER =====
+        doc.moveDown(1);
+        doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke('#cccccc');
+        doc
+          .fontSize(8)
+          .font('Helvetica')
+          .fillColor('#666666')
+          .text(
+            `Documento generato automaticamente dal portale Inembryo - ${new Date().toLocaleString('it-IT')}`,
+            { align: 'center' },
+          );
+
+        // Finalizza il documento
+        doc.end();
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 }

@@ -25,4 +25,10 @@ export class BandiService {
       params: queryParams,
     });
   }
+
+  downloadBandoPdf(bandoId: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/${bandoId}/export-pdf`, {
+      responseType: 'blob'
+    });
+  }
 }

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { BandiService } from '../bandi.service';
 
 // NOTA: Sostituisci questa interfaccia con quella reale che usi nel tuo progetto
 interface BandoDetail {
@@ -44,10 +45,12 @@ export class BandoDetailComponent implements OnInit {
   };
 
   bandoId: string | null = null;
+  isDownloadingPdf: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private bandiService: BandiService
   ) {}
 
   ngOnInit(): void {
@@ -62,5 +65,35 @@ export class BandoDetailComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/']);
+  }
+
+  downloadPdf(): void {
+    if (!this.bandoId) {
+      console.error('ID Bando non disponibile');
+      return;
+    }
+
+    this.isDownloadingPdf = true;
+    
+    this.bandiService.downloadBandoPdf(parseInt(this.bandoId)).subscribe({
+      next: (blob: Blob) => {
+        // Crea un URL temporaneo per il blob
+        const url = window.URL.createObjectURL(blob);
+        
+        // Crea un link temporaneo e clicca su di esso
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `bando-${this.bandoId}.pdf`;
+        link.click();
+        
+        // Pulisci l'URL temporaneo
+        window.URL.revokeObjectURL(url);
+        this.isDownloadingPdf = false;
+      },
+      error: (err) => {
+        console.error('Errore nel download del PDF:', err);
+        this.isDownloadingPdf = false;
+      }
+    });
   }
 }
