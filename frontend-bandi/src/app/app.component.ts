@@ -34,7 +34,7 @@ export class AppComponent implements OnInit {
   filtriList: FiltroItem[] = [
     {
       label: 'TIPO SOGGETTO',
-      isOpen: false,
+      isOpen: true,
       options: [
         { label: 'IMPRESA', selected: false },
         { label: 'ISTITUTO FINANZIARIO', selected: false },
